@@ -4,6 +4,8 @@ import copy
 
 import tcod
 
+import color
+
 #from actions import EscapeAction, MovementAction
 from engine import Engine
 
@@ -16,7 +18,7 @@ def main() -> None:
     screen_height = 50
 
     map_width = 80
-    map_height = 45
+    map_height = 43
 
     room_max_size = 10
     room_min_size = 6
@@ -42,6 +44,11 @@ def main() -> None:
         engine=engine,)
 
     engine.update_fov()
+
+    engine.message_log.add_message(
+        "Hello and welcome, adventurer, to yet another dungeon!",
+        color.welcome_text
+    )
 
     with tcod.context.new_terminal(
         screen_width,
