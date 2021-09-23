@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import exceptions
+
 from tcod.console import Console
 from tcod.map import compute_fov
 
@@ -31,7 +33,10 @@ class Engine:
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
-                entity.ai.perform()
+                try:
+                    entity.ai.perform()
+                except exceptions.Impossible:
+                    pass    # ignore impossible action exceptions from ai
 
 
     def update_fov(self) -> None:
