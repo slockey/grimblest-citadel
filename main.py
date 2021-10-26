@@ -53,6 +53,7 @@ def main() -> None:
         color.welcome_text
     )
 
+    """ TODO - suppress the OpenGL error on cration of new terminal """
     with tcod.context.new_terminal(
         screen_width,
         screen_height,
