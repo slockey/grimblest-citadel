@@ -1,14 +1,16 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple, TYPE_CHECKING
+import random
+
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np
 from numpy.core.defchararray import index  # type: ignore
 import tcod
 from tcod.path import Pathfinder
 
-from actions import Action, MeleeAction, MovementAction, WaitAction
+from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
 
 
 if TYPE_CHECKING:
@@ -78,3 +80,43 @@ class HostileEnemy(BaseAI):
             return MovementAction(self.entity, dx, dy).perform()
 
         return WaitAction(self.entity).perform()
+
+
+class ConfusedEnemy(BaseAI):
+    """
+    a confused enemy will stumble around aimlessly for a given number of turns, 
+    then if an actor occupies a tile it is randomly moving into it will attack
+    """
+
+    def __init__(self, entity: Actor, previous_ai: Optional[BaseAI], turns_remaining: int) -> None:
+        super().__init__(entity)
+
+        self.previous_ai = previous_ai
+        self.turns_remaining = turns_remaining
+
+    def perform(self) -> None:
+        # return AI back to original state if the effect has run its course
+        if self.turns_remaining <= 0:
+            self.engine.message_log.add_message( f"The {self.entity.name} is no longer confused.")
+            self.entity.ai = self.previous_ai
+        else:
+            # move in a random direction
+            direction_x, direction_y = random.choice(
+                [
+                    (-1,-1),    # northwest
+                    (0,-1),     # north
+                    (1,-1),     # northeast
+                    (-1,0),     # west
+                    (1,0),      # east
+                    (-1,1),     # southwest
+                    (0,1),      # south
+                    (1,1),      # southeast
+                ]
+            )
+
+            self.turns_remaining -= 1
+
+            """
+            the actor will either move or attack in the chosen random direction
+            """
+            return BumpAction(self.entity, direction_x, direction_y).perform()
