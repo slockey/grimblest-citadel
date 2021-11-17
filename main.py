@@ -11,6 +11,8 @@ import color
 from engine import Engine
 
 import entity_factories
+import exceptions
+import input_handlers
 
 from procgen import generate_dungeon
 
@@ -53,6 +55,8 @@ def main() -> None:
         color.welcome_text
     )
 
+    handler: input_handlers.BaseEventHandler = input_handlers.MainGameEventHandler(engine)
+
     """ TODO - suppress the OpenGL error on cration of new terminal """
     with tcod.context.new_terminal(
         screen_width,
@@ -62,19 +66,29 @@ def main() -> None:
         vsync=True
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
-        while True:
-            root_console.clear()
-            engine.event_handler.on_render(console=root_console)
-            context.present(root_console)
+        try:
+            while True:
+                root_console.clear()
+                handler.on_render(console=root_console)
+                context.present(root_console)
 
-            try:
-                for event in tcod.event.wait():
-                    context.convert_event(event)
-                    engine.event_handler.handle_events(event)
-            except Exception:
-                traceback.print_exc()   # print error to stderr
-                # write to the message log
-                engine.message_log.add_message(traceback.format_exc(), color.error)
+                try:
+                    for event in tcod.event.wait():
+                        context.convert_event(event)
+                        handler = handler.handle_events(event)
+                except Exception:   # handle exceptions in game
+                    traceback.print_exc()   # print error to stderr
+                    # write to the message log
+                    if isinstance(handler, input_handlers.EventHandler):
+                        handler.engine.message_log.add_message(traceback.format_exc(), color.error)
+        except exceptions.QuitWithoutSaving:
+            raise
+        except SystemExit:
+            # TODO: add the save function here
+            raise
+        except BaseException:   # save on any other unexpected exception
+            # TODO: add the save function here
+            raise
 
 
 if __name__ == "__main__":
