@@ -24,3 +24,10 @@ class Inventory(BaseComponent):
         item.place(self.parent.x, self.parent.y, self.gamemap)
 
         self.engine.message_log.add_message(f"You dropped the {item.name}.")
+
+    def add(self, item: Item) -> None:
+        """
+        inteface to add items to the inventory. this is a precursor to stackable items
+        """
+        self.items.append(item)
+        self.engine.message_log.add_message(f"You picked up the {item.name}.")
