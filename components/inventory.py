@@ -29,5 +29,8 @@ class Inventory(BaseComponent):
         """
         inteface to add items to the inventory. this is a precursor to stackable items
         """
-        self.items.append(item)
-        self.engine.message_log.add_message(f"You picked up the {item.name}.")
+        if len(self.items) < self.capacity:
+            self.items.append(item)
+            self.engine.message_log.add_message(f"You picked up the {item.name}.")
+        else:
+            self.engine.message_log.add_message(f"No room in inventory for {item.name}.")

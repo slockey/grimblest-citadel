@@ -332,7 +332,7 @@ class InventoryEventHandler(AskUserEventHandler):
         
         y = 0
 
-        width = len(self.TITLE) + 4
+        width = len(self.TITLE) + 7
 
         console.draw_frame(
             x=x,
@@ -351,7 +351,7 @@ class InventoryEventHandler(AskUserEventHandler):
                 
                 is_equipped = self.engine.player.equipment.item_is_equipped(item)
 
-                item_string = f"({item_key}) {item.name})"
+                item_string = f"({item_key}) {item.name}"
 
                 if is_equipped:
                     item_string = f"{item_string} (E)"
