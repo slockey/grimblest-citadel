@@ -42,13 +42,16 @@ troll = Actor(
 )
 
 health_potion = Item(
+    id="health_potion",
     char="!",
     color=(127, 0, 255),
     name="Health Potion",
     consumable=consumable.HealingConsumable(amount=4),
+    stackable=True,
 )
 
 lightning_scroll = Item(
+    id="lightning_scroll",
     char="~",
     color=(255, 255, 0),
     name="Lightning Scroll",
@@ -56,6 +59,7 @@ lightning_scroll = Item(
 )
 
 confusion_scroll = Item(
+    id="confusion_scroll",
     char="~",
     color=(207, 63, 255),
     name="Confusion Scroll",
@@ -63,6 +67,7 @@ confusion_scroll = Item(
 )
 
 fireball_scroll = Item(
+    id="fireball_scroll",
     char="~",
     color=(255, 0, 0),
     name="Fireball Scroll",
@@ -70,6 +75,7 @@ fireball_scroll = Item(
 )
 
 dagger = Item(
+    id="dagger",
     char="/",
     color=(0, 191, 255),
     name="Dagger",
@@ -77,6 +83,7 @@ dagger = Item(
 )
 
 sword = Item(
+    id="sword",
     char="/",
     color=(0, 191, 255),
     name="Sword",
@@ -84,6 +91,7 @@ sword = Item(
 )
 
 leather_armor = Item(
+    id="leather_armor",
     char="[",
     color=(139, 69, 19),
     name="Leather Armor",
@@ -91,8 +99,10 @@ leather_armor = Item(
 )
 
 chain_mail = Item(
+    id="chain_mail",
     char="[",
     color=(139, 69, 19),
     name="Chain Mail",
     equippable=equippable.ChainMail(),
 )
+

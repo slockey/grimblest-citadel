@@ -313,7 +313,7 @@ class InventoryEventHandler(AskUserEventHandler):
     TITLE = "<missing title>"
 
     def on_render(self, console: tcod.Console) -> None:
-        """retner an inventory menu, which displays the items in the inventory and the letter to select them.
+        """return an inventory menu, which displays the items in the inventory and the letter to select them.
         Will move to a different position based on where the player is located, so the player can always know 
         where they are
         """
@@ -355,6 +355,10 @@ class InventoryEventHandler(AskUserEventHandler):
 
                 if is_equipped:
                     item_string = f"{item_string} (E)"
+                
+                if item.stackable:
+                    item_count = self.engine.player.inventory.stackable.get(item)
+                    item_string = f"{item_string} ({item_count})"
 
                 console.print(x + 1, y + i + 1, item_string)
 

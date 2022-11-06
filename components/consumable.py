@@ -6,7 +6,6 @@ from typing import Optional, TYPE_CHECKING
 import actions
 import color
 import components.ai
-import components.inventory
 
 from components.base_component import BaseComponent
 from exceptions import Impossible
@@ -14,6 +13,7 @@ from input_handlers import ActionOrHandler, AreaRangedAttackHandler, SingleRange
 
 
 if TYPE_CHECKING:
+    from components.inventory import Inventory
     from entity import Actor, Item
 
 class Consumable(BaseComponent):
@@ -34,7 +34,7 @@ class Consumable(BaseComponent):
         entity = self.parent
         inventory = entity.parent
         if isinstance(inventory, components.inventory.Inventory):
-            inventory.items.remove(entity)
+            inventory.remove(entity)
 
 
 class ConfusionConsumable(Consumable):
@@ -83,11 +83,11 @@ class HealingConsumable(Consumable):
         amount_recovered = consumer.fighter.heal(self.amount)
 
         if amount_recovered > 0:
+            self.consume()
             self.engine.message_log.add_message(
                 f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
                 color.health_recovered,
             )
-            self.consume()
         else:
             raise Impossible(f"Your health is already full.")
 

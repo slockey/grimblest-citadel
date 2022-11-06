@@ -133,7 +133,22 @@ class Actor(Entity):
         """Returns true as long as this actor can perform actions"""
         return bool(self.ai)
 
-
+"""
+    Item identifiers...
+    Problem: stackable items don't stack in the inventory
+    Facts:
+        + items added to the inventory are unique since they are object references
+        + items cannot stack since each healing potion if a separately instantiated object
+          so they therefore can only ever have a stack count of 1
+        + if each item is a new instantiated object then we (could) end up with memory issues 
+          as the game world expands
+        + items in the player inventory may not need new instantiations
+        + items in the player inventory don't need world coords (x, y)
+    Notes:
+        + (future) how can we handle items that are generated with interesting features if they are only 
+          identified by ID?
+        
+"""
 class Item(Entity):
     def __init__(
         self, 
@@ -143,8 +158,10 @@ class Item(Entity):
         char: str = "?", 
         color: Tuple[int, int, int] = (255, 255, 255), 
         name: str = "<Unnamed>", 
+        id: str = None, 
         consumable: Optional[Consumable] = None,
         equippable: Optional[Equippable] = None,
+        stackable: bool = False,
     ):
         super().__init__(
             x=x, 
@@ -156,6 +173,8 @@ class Item(Entity):
             render_order=RenderOrder.ITEM
         )
 
+        self.id = id
+
         self.consumable = consumable
         if self.consumable:
             self.consumable.parent = self
@@ -164,3 +183,4 @@ class Item(Entity):
         if self.equippable:
             self.equippable.parent = self
 
+        self.stackable = stackable
