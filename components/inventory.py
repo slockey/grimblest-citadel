@@ -40,9 +40,10 @@ class Inventory(BaseComponent):
     def drop(self, item: Item) -> None:
         """
         removes an item from the inventory and restores it to the game map
-        at the player's current location
+        at the player's current location.
+        spawning the item which results in a deep copy being added to the game entities list
         """
-        item.place(self.parent.x, self.parent.y, self.gamemap)
+        item.spawn(self.gamemap, self.parent.x, self.parent.y)
         self.remove(item)
 
 
