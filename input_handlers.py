@@ -238,6 +238,48 @@ class CharacterScreenEventHandler(AskUserEventHandler):
         )
 
 
+class TextInputEventHandler(AskUserEventHandler):
+    TITLE = "Provide Text Input"
+    myTextInput = ""
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+        
+        y = 0
+
+        width = len(self.TITLE) + 4
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=7,
+            title=self.TITLE,
+            clear=True,
+            fg=(255,255,255),
+            bg=(0,0,0),
+        )
+
+        console.print(
+            x=x + 1, y=y + 1, string=f"Text: {self.myTextInput}"
+        )
+
+    def ev_keydown(self, event: "tcod.event.KeyDown") -> Optional[ActionOrHandler]:
+        if event.sym == tcod.event.K_BACKSPACE:
+            # remove the last character
+            self.myTextInput = self.myTextInput[:-1]
+        elif event.sym == tcod.event.K_RETURN:
+            self.engine.message_log.add_message(self.myTextInput, color.invalid)
+            return super().ev_keydown(event)
+        elif event.sym < 256 and chr(event.sym).isprintable():
+            self.myTextInput += chr(event.sym)
+
+
 class LevelUpEventHandler(AskUserEventHandler):
     TITLE = "Level Up"
 
@@ -551,6 +593,8 @@ class MainGameEventHandler(EventHandler):
             return CharacterScreenEventHandler(self.engine)
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
+        elif key == tcod.event.K_BACKQUOTE:
+            return TextInputEventHandler(self.engine)
 
         return action
 
