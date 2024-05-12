@@ -8,6 +8,7 @@ import traceback
 from typing import Optional
 
 import tcod
+from tcod import libtcodpy
 
 import color
 from engine import Engine
@@ -72,7 +73,7 @@ def load_game(filename: str) -> Engine:
 class MainMenu(input_handlers.BaseEventHandler):
     """Handle the main menu rendering and input"""
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         """Render the main menu on a background image"""
         console.draw_semigraphics(background_image, 0, 0)
 
@@ -81,7 +82,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             console.height // 2 - 4,
             "Grimblest Citadel",
             fg=color.menu_title,
-            alignment=tcod.CENTER,
+            alignment=libtcodpy.CENTER,
         )
 
         menu_width = 24
@@ -94,15 +95,15 @@ class MainMenu(input_handlers.BaseEventHandler):
                 text.ljust(menu_width),
                 fg=color.menu_text,
                 bg=color.black,
-                alignment=tcod.CENTER,
-                bg_blend=tcod.BKGND_ALPHA(64),
+                alignment=libtcodpy.CENTER,
+                bg_blend=libtcodpy.BKGND_ALPHA(64),
             )
 
     def ev_keydown(self, event: "tcod.event.KeyDown") -> Optional[input_handlers.BaseEventHandler]:
         
-        if event.sym in (tcod.event.K_q, tcod.event.K_ESCAPE):
+        if event.sym in (tcod.event.KeySym.q, tcod.event.KeySym.ESCAPE):
             raise SystemExit()
-        elif event.sym == tcod.event.K_c:
+        elif event.sym == tcod.event.KeySym.c:
             try:
                 return input_handlers.MainGameEventHandler(load_game("savegame.sav"))
             except FileNotFoundError:
@@ -110,7 +111,7 @@ class MainMenu(input_handlers.BaseEventHandler):
             except Exception as exc:
                 traceback.print_exc()   # print to stderr
                 return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
-        elif event.sym == tcod.event.K_n:
+        elif event.sym == tcod.event.KeySym.n:
             return input_handlers.MainGameEventHandler(new_game())
         
         return None

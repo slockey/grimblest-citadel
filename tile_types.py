@@ -14,8 +14,8 @@ graphic_dt = np.dtype(
 
 tile_dt = np.dtype(
     [
-        ("walkable", np.bool),      # true if the tile can be walked on
-        ("transparent", np.bool),   # true if this tile doesn't block FOV
+        ("walkable", bool),      # true if the tile can be walked on
+        ("transparent", bool),   # true if this tile doesn't block FOV
         ("dark", graphic_dt),       # graphics for when this tile is NOT in FOV
         ("light", graphic_dt),      # graphics for when this tile is in FOV
     ]

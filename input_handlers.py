@@ -6,6 +6,7 @@ import os
 from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
 
 import tcod
+from tcod import libtcodpy
 
 import actions
 
@@ -27,44 +28,44 @@ if TYPE_CHECKING:
 
 MOVE_KEYS = {
    # Arrow keys.
-   tcod.event.K_UP: (0, -1),
-   tcod.event.K_DOWN: (0, 1),
-   tcod.event.K_LEFT: (-1, 0),
-   tcod.event.K_RIGHT: (1, 0),
-   tcod.event.K_HOME: (-1, -1),
-   tcod.event.K_END: (-1, 1),
-   tcod.event.K_PAGEUP: (1, -1),
-   tcod.event.K_PAGEDOWN: (1, 1),
+   tcod.event.KeySym.UP: (0, -1),
+   tcod.event.KeySym.DOWN: (0, 1),
+   tcod.event.KeySym.LEFT: (-1, 0),
+   tcod.event.KeySym.RIGHT: (1, 0),
+   tcod.event.KeySym.HOME: (-1, -1),
+   tcod.event.KeySym.END: (-1, 1),
+   tcod.event.KeySym.PAGEUP: (1, -1),
+   tcod.event.KeySym.PAGEDOWN: (1, 1),
    # Numpad keys.
-   tcod.event.K_KP_1: (-1, 1),
-   tcod.event.K_KP_2: (0, 1),
-   tcod.event.K_KP_3: (1, 1),
-   tcod.event.K_KP_4: (-1, 0),
-   tcod.event.K_KP_6: (1, 0),
-   tcod.event.K_KP_7: (-1, -1),
-   tcod.event.K_KP_8: (0, -1),
-   tcod.event.K_KP_9: (1, -1),
+   tcod.event.KeySym.KP_1: (-1, 1),
+   tcod.event.KeySym.KP_2: (0, 1),
+   tcod.event.KeySym.KP_3: (1, 1),
+   tcod.event.KeySym.KP_4: (-1, 0),
+   tcod.event.KeySym.KP_6: (1, 0),
+   tcod.event.KeySym.KP_7: (-1, -1),
+   tcod.event.KeySym.KP_8: (0, -1),
+   tcod.event.KeySym.KP_9: (1, -1),
    # Vi keys.
-   tcod.event.K_h: (-1, 0),
-   tcod.event.K_j: (0, 1),
-   tcod.event.K_k: (0, -1),
-   tcod.event.K_l: (1, 0),
-   tcod.event.K_y: (-1, -1),
-   tcod.event.K_u: (1, -1),
-   tcod.event.K_b: (-1, 1),
-   tcod.event.K_n: (1, 1),
+   tcod.event.KeySym.h: (-1, 0),
+   tcod.event.KeySym.j: (0, 1),
+   tcod.event.KeySym.k: (0, -1),
+   tcod.event.KeySym.l: (1, 0),
+   tcod.event.KeySym.y: (-1, -1),
+   tcod.event.KeySym.u: (1, -1),
+   tcod.event.KeySym.b: (-1, 1),
+   tcod.event.KeySym.n: (1, 1),
 }
 
 WAIT_KEYS = {
-   tcod.event.K_PERIOD,
-   tcod.event.K_KP_5,
-   tcod.event.K_CLEAR,
+   tcod.event.KeySym.PERIOD,
+   tcod.event.KeySym.KP_5,
+   tcod.event.KeySym.CLEAR,
 }
 
 
 CONFIRM_KEYS = {
-    tcod.event.K_RETURN,
-    tcod.event.K_KP_ENTER,
+    tcod.event.KeySym.RETURN,
+    tcod.event.KeySym.KP_ENTER,
 }
 
 
@@ -86,7 +87,7 @@ class BaseEventHandler(tcod.event.EventDispatch[ActionOrHandler]):
         assert not isinstance(state, Action), f"{self!r} can not handle actions."
         return self
     
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         raise NotImplementedError()
     
     def ev_quit(self, event: "tcod.event.Quit") -> Optional[Action]:
@@ -100,11 +101,11 @@ class PopupMessage(BaseEventHandler):
         self.parent = parent_handler
         self.text = text
     
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         """render the parent and dim the result, then print the message on top"""
         self.parent.on_render(console)
-        console.tiles_rgb["fg"] //= 8
-        console.tiles_rgb["bg"] //= 8
+        console.rgb["fg"] //= 8
+        console.rgb["bg"] //= 8
 
         console.print(
             console.width // 2,
@@ -112,7 +113,7 @@ class PopupMessage(BaseEventHandler):
             self.text,
             fg=color.white,
             bg=color.black,
-            alignment=tcod.CENTER,
+            alignment=libtcodpy.CENTER,
         )
     
     def ev_keydown(self, event: "tcod.event.KeyDown") -> Optional[BaseEventHandler]:
@@ -172,12 +173,12 @@ class AskUserEventHandler(EventHandler):
     def ev_keydown(self, event: "tcod.event.KeyDown") -> Optional[ActionOrHandler]:
         """By default any key exits this input handler"""
         if event.sym in { # ignore modifier keys
-            tcod.event.K_LSHIFT,
-            tcod.event.K_RSHIFT,
-            tcod.event.K_LCTRL,
-            tcod.event.K_RCTRL,
-            tcod.event.K_LALT,
-            tcod.event.K_RALT,
+            tcod.event.KeySym.LSHIFT,
+            tcod.event.KeySym.RSHIFT,
+            tcod.event.KeySym.LCTRL,
+            tcod.event.KeySym.RCTRL,
+            tcod.event.KeySym.LALT,
+            tcod.event.KeySym.RALT,
         }:
             return None
 
@@ -198,7 +199,7 @@ class AskUserEventHandler(EventHandler):
 class CharacterScreenEventHandler(AskUserEventHandler):
     TITLE = "Character Information"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
 
         if self.engine.player.x <= 30:
@@ -241,7 +242,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
 class LevelUpEventHandler(AskUserEventHandler):
     TITLE = "Level Up"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
 
         if self.engine.player.x <= 30:
@@ -284,7 +285,7 @@ class LevelUpEventHandler(AskUserEventHandler):
     def ev_keydown(self, event: "tcod.event.KeyDown") -> Optional[ActionOrHandler]:
         player = self.engine.player
         key = event.sym
-        index = key - tcod.event.K_a
+        index = key - tcod.event.KeySym.a
 
         if 0 <= index <= 2:
             if index == 0:
@@ -312,7 +313,7 @@ class InventoryEventHandler(AskUserEventHandler):
        """
     TITLE = "<missing title>"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         """return an inventory menu, which displays the items in the inventory and the letter to select them.
         Will move to a different position based on where the player is located, so the player can always know 
         where they are
@@ -368,7 +369,7 @@ class InventoryEventHandler(AskUserEventHandler):
     def ev_keydown(self, event: "tcod.event.KeyDown") -> Optional[ActionOrHandler]:
         player = self.engine.player
         key = event.sym
-        index = key - tcod.event.K_a
+        index = key - tcod.event.KeySym.a
 
         if 0 <= index <= 26:
             try:
@@ -418,12 +419,12 @@ class SelectIndexHandler(AskUserEventHandler):
         player = self.engine.player
         engine.mouse_location = player.x, player.y
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         """Highlight the tile under the cursor"""
         super().on_render(console)
         x, y = self.engine.mouse_location
-        console.tiles_rgb["bg"][x, y] = color.white
-        console.tiles_rgb["fg"][x, y] = color.black
+        console.rgb["bg"][x, y] = color.white
+        console.rgb["fg"][x, y] = color.black
 
     def ev_keydown(self, event: "tcod.event.KeyDown") -> Optional[ActionOrHandler]:
         """Check for key movement or confirmation keys"""
@@ -495,7 +496,7 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         self.radius = radius
         self.callback = callback
     
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         """highlight the tile under the cursor"""
         super().on_render(console)
 
@@ -527,7 +528,7 @@ class MainGameEventHandler(EventHandler):
         player = self.engine.player
 
         # not sure why this is outside the other if/elif/etc block
-        if key == tcod.event.K_PERIOD and modifier & (
+        if key == tcod.event.KeySym.PERIOD and modifier & (
             tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
         ):
             return actions.TakeStairsAction(player)
@@ -537,19 +538,19 @@ class MainGameEventHandler(EventHandler):
             action = BumpAction(player, dx, dy)
         elif key in WAIT_KEYS:
             action = WaitAction(player)
-        elif key == tcod.event.K_ESCAPE:
+        elif key == tcod.event.KeySym.ESCAPE:
             action = EscapeAction(player)
-        elif key == tcod.event.K_v:
+        elif key == tcod.event.KeySym.v:
             return HistoryViewer(self.engine)
-        elif key == tcod.event.K_g:
+        elif key == tcod.event.KeySym.g:
             action = PickupAction(player)
-        elif key == tcod.event.K_i:
+        elif key == tcod.event.KeySym.i:
             return InventoryActivateHandler(self.engine)
-        elif key == tcod.event.K_d:
+        elif key == tcod.event.KeySym.d:
             return InventoryDropHandler(self.engine)
-        elif key == tcod.event.K_c:
+        elif key == tcod.event.KeySym.c:
             return CharacterScreenEventHandler(self.engine)
-        elif key == tcod.event.K_SLASH:
+        elif key == tcod.event.KeySym.SLASH:
             return LookHandler(self.engine)
 
         return action
@@ -567,15 +568,15 @@ class GameOverEventHandler(EventHandler):
         self.on_quit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
-        if event.sym == tcod.event.K_ESCAPE:
+        if event.sym == tcod.event.KeySym.ESCAPE:
             self.on_quit()
 
 
 CURSOR_Y_KEYS = {
-    tcod.event.K_UP: -1,
-    tcod.event.K_DOWN: 1,
-    tcod.event.K_PAGEUP: -10,
-    tcod.event.K_PAGEDOWN: 10,
+    tcod.event.KeySym.UP: -1,
+    tcod.event.KeySym.DOWN: 1,
+    tcod.event.KeySym.PAGEUP: -10,
+    tcod.event.KeySym.PAGEDOWN: 10,
 }
 
 
@@ -587,15 +588,15 @@ class HistoryViewer(EventHandler):
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)  # Draw the main state as the background.
 
-        log_console = tcod.Console(console.width - 6, console.height - 6)
+        log_console = tcod.console.Console(console.width - 6, console.height - 6)
 
         # Draw a frame with a custom banner title.
         log_console.draw_frame(0, 0, log_console.width, log_console.height)
         log_console.print_box(
-            0, 0, log_console.width, 1, "┤Message history├", alignment=tcod.CENTER
+            0, 0, log_console.width, 1, "┤Message history├", alignment=libtcodpy.CENTER
         )
 
         # Render the message log using the cursor parameter.
@@ -622,9 +623,9 @@ class HistoryViewer(EventHandler):
             else:
                 # Otherwise move while staying clamped to the bounds of the history log.
                 self.cursor = max(0, min(self.cursor + adjust, self.log_length - 1))
-        elif event.sym == tcod.event.K_HOME:
+        elif event.sym == tcod.event.KeySym.K_HOME:
             self.cursor = 0  # Move directly to the top message.
-        elif event.sym == tcod.event.K_END:
+        elif event.sym == tcod.event.KeySym.K_END:
             self.cursor = self.log_length - 1  # Move directly to the last message.
         else:  # Any other key moves back to the main game state.
             return MainGameEventHandler(self.engine)
